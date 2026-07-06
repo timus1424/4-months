@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For My Favorite Person ❤️</title>
+    <!-- Tailwind CSS CDN for styling -->
+<script src="https://cdn.tailwindcss.com"></script>    <style>
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .floating { animation: float 3s ease-in-out infinite; }
+        canvas { pointer-events: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 50; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-rose-50 to-amber-50 min-h-screen flex flex-col items-center justify-center p-4 font-sans antialiased text-slate-800 relative overflow-hidden">
+
+    <div id="secret-toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-rose-500 text-white px-6 py-3 rounded-full shadow-xl opacity-0 pointer-events-none transition-all duration-500 z-[100]">
+      ❤️ Achievement Unlocked: Official Keeper of Phoenix's Heart.
+    </div>
+
+    <!-- Heart Particle Canvas -->
+    <canvas id="heartCanvas"></canvas>
+
+    <!-- SCREEN 1: PASSWORD GATE -->
+    <div id="password-screen" class="max-w-md w-full bg-white/80 backdrop-blur-md p-8 rounded-3xl shadow-xl border border-rose-100 text-center transition-all duration-500 z-10">
+        <div class="text-5xl mb-4 floating">🔒</div>
+        <h1 class="text-2xl font-bold text-rose-600 tracking-wide mb-2">Our Secret Place</h1>
+        <p class="text-sm text-slate-500 mb-6">the same password that we decided on with...!</p>
+        
+        <input type="password" id="password-input" placeholder="Enter password" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-rose-400 text-center text-lg tracking-wide mb-4 bg-white/50">
+        <p id="password-error" class="text-xs text-rose-500 font-medium mb-4 hidden">Oops! That isn't our secret code. Try again! 🤔</p>
+        
+        <button id="login-btn" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-semibold py-3 px-6 rounded-xl shadow-md hover:shadow-lg active:scale-[0.98] transition-all cursor-pointer">
+            Unlock Memories
+        </button>
+    </div>
+
+    <!-- SCREEN 2: MAIN COMPLIMENT DASHBOARD -->
+    <div id="main-screen" class="max-w-1xl w-full bg-white/80 backdrop-blur-md p-8 rounded-3xl shadow-xl border border-rose-100 text-center transition-all duration-500 z-10 hidden">
+        
+        <!-- Header Visual -->
+        <div id="diya-header" class="text-5xl mb-4 floating cursor-pointer select-none">❤️🪔</div>
+        <h1 class="text-2xl font-bold text-rose-600 tracking-wide mb-2">To My Favorite Person</h1>
+        <p class="text-xs uppercase tracking-widest text-slate-400 font-semibold mb-6">Happy Four Months Diya ✨</p>
+        <p class="text-sm text-slate-500 mb-6">Every day with you is a new adventure, and I can't wait for countless more. Here's a little something to make your day brighter!</p>
+
+        <!-- Music Embed Box -->
+        <div class="mb-6 rounded-2xl overflow-hidden shadow-sm border border-rose-50 bg-white/40 p-2">
+            <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/2262bWmqomIaJXwCRHr13j?utm_source=generator&si=a75877d3c9a14efd" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+        </div>
+
+        <!-- Main Display Box -->
+        <div class="min-h-[140px] flex flex-col justify-center items-center px-2">
+            <!-- Hidden Photo Container -->
+            <div id="photo-container" class="hidden mb-4 transform scale-95 opacity-0 transition-all duration-700 ease-out">
+              <div id="photo-flip" class="relative w-56 h-72 cursor-pointer [perspective:1000px]">
+                <div id="photo-inner" class="relative w-full h-full transition-transform duration-700 [transform-style:preserve-3d]">
+                  <div class="absolute inset-0 bg-white p-2 rounded-2xl shadow-xl [backface-visibility:hidden]">
+                    <img id="anniversary-photo" src="https://raw.githubusercontent.com/timus1424/4-months/refs/heads/main/riverside.jpeg" alt="Our Memory" class="w-full h-full object-cover rounded-xl">
+                  </div>
+                  <div class="absolute inset-0 bg-amber-50 rounded-2xl shadow-xl flex flex-col justify-center items-center p-6 text-center [transform:rotateY(180deg)] [backface-visibility:hidden]">
+                    <p class="text-lg font-semibold text-rose-600">July 2026 ❤️</p>
+                    <p class="mt-4 italic text-slate-700">One of my favorite memories.<br>There will be many more.</p>
+                    <p class="mt-6 text-xs text-slate-400">— Phoenix</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <p id="compliment-text" class="text-lg font-medium text-slate-700 italic leading-relaxed">
+                Loading your daily message...
+            </p>
+            <p id="countdown-timer" class="text-xs text-rose-400 font-mono mt-4 hidden">
+                Our little next moment arrives in: 00:00:00
+            </p>
+        </div>
+
+        <!-- Interactive Button -->
+        <button id="action-btn" class="mt-8 w-full bg-rose-500 hover:bg-rose-600 text-white font-semibold py-3 px-6 rounded-xl shadow-md hover:shadow-lg active:scale-[0.98] transition-all cursor-pointer">
+            Reveal Today's Message
+        </button>
+    </div>
+
+    <!-- Footer -->
+    <p class="text-xs text-slate-400 mt-6 font-medium z-10">Made by Phoenix, for his Diya. <span id="always-secret" class="cursor-pointer hover:text-rose-500 transition">Always.</span></p>
+
+    <!-- App Logic -->
+    <script>
+        const SECRET_PASSWORD = "diya+sumit";
+
+        const RANDOM_MESSAGES = [
+  "SYSTEM ERROR: Too many reasons detected. Unable to choose just one. ❤️",
+  "Today's compliment overflowed my heart. Please accept unlimited hugs instead.",
+  "Loading... still counting all the reasons I love you."
+];
+        const compliments = [
+  "Good morning, my Queen. The world may have the sunrise, but I still think your smile does it better.",
+  "Diya, your eyes have this unfair ability to calm every storm in my head.",
+  "My bulldozer, you somehow crash into my life every single day and still manage to rebuild my heart better than before.",
+  "Sitharaman Ji, I'd happily pay every emotional tax if the revenue always came back as your smile.",
+  "Jaanu, I genuinely believe coffee envies you, because somehow you wake me up even more.",
+  "Priye, every page of your favorite books reminds me that my favorite story has always been you.",
+  "Chèrie, if beauty were a competition, the judges would just go home after seeing you.",
+  "BBG, how do you manage to look adorable, gorgeous, and absolutely breathtaking all at the same time?",
+  "You don't just have pretty eyes, Diya. You have eyes that make me forget what I was about to say.",
+  "Your smile should honestly come with a warning: highly addictive and impossible to forget.",
+  "I still catch myself smiling at my phone like an idiot because of you.",
+  "Every time you laugh, another reason is added to why I fell for you.",
+  "Queen, you are proof that elegance and absolute chaos can somehow exist in one beautiful person.",
+  "Bulldozer, thank you for demolishing every wall I had around my heart.",
+  "Sitharaman Ji, I'd invest all my emotional savings into us without checking the returns.",
+  "Diya, your kindness is somehow even prettier than your face, and that's saying something.",
+  "I don't know how one person can be this cute, this hot, and this comforting all at once.",
+  "You're my favorite notification, my favorite distraction, and definitely my favorite person.",
+  "If we ever got lost while travelling, I'd still be happy because I'd be lost with you.",
+  "One day, we'll stop sending each other destination reels and actually live them together.",
+  "I hope our future garage has room for your dream car, my bike, and countless road trips.",
+  "Coffee date with you > literally any luxury vacation.",
+  "Peri-peri fries somehow taste even better when I'm stealing them from your plate.",
+  "Ice cream melts slower than I do when you look at me like that.",
+  "You're the only plot twist I'd happily reread a thousand times.",
+  "You somehow manage to be my peace and my biggest weakness at the same time.",
+  "I don't just miss you. I miss existing in the same little moments as you.",
+  "You have the kind of beauty that photographs can never fully capture.",
+  "Your hugs have ruined every other definition of comfort.",
+  "If heaven has libraries, I hope they also have a cozy coffee corner where we can spend forever.",
+  "Every version of you is my favorite version—sleepy you, excited you, angry you, bookworm you, and even tiny-drama-queen you.",
+  "Queen, your confidence is one of the most attractive things about you.",
+  "Sometimes I wonder how someone this beautiful also ended up being this kind.",
+  "I love how your eyes sparkle when you talk about something you're passionate about.",
+  "Diya, you really live up to your name. You light up every room you walk into.",
+  "You are dangerously cute. I demand compensation in hugs.",
+  "You're the only person who can make silence feel comfortable.",
+  "If loving you were a profession, I'd never retire.",
+  "You're my favorite chapter, my favorite quote, and my favorite ending.",
+  "Phoenix may rise from ashes, but you somehow make him rise smiling every single day.",
+  "Thank you for loving your Stinky Caveman despite all his questionable decisions.",
+  "Every 'Sumitooo' from you instantly fixes my mood.",
+  "When you call me baby, I forget every problem I had five seconds earlier.",
+  "I hope you never stop looking at me the way you do when I'm talking nonsense.",
+  "Your smile deserves its own national holiday.",
+  "I don't chase perfection anymore. I found you instead.",
+  "If villains had someone like you waiting for them, maybe they'd become heroes.",
+  "You're the calm in my chaos and the chaos in my calm, and somehow both feel perfect.",
+  "In every lifetime, I'd still choose you, Diya.",
+  "If fate ever tried to steal you away from me, I'd argue with fate until it gave up.",
+  "If the universe ever wrote us into different chapters, I'd rewrite the book.",
+  "You're the only person I'd willingly get lost with, over and over again.",
+  "Every time I see you, I find a new reason to fall in love all over again.",
+  "Every Love story needs a little madness. Luck for us, we have a lot of it.",
+  "Just in case you forgot today: you're loved more than words, prettier than sunsets, hotter than coffee, cuter than puppies, and forever my favorite person."
+];
+
+        const passwordScreen = document.getElementById('password-screen');
+        const mainScreen = document.getElementById('main-screen');
+        const passwordInput = document.getElementById('password-input');
+        const loginBtn = document.getElementById('login-btn');
+        const passwordError = document.getElementById('password-error');
+
+        if (sessionStorage.getItem('isUnlocked') === 'true') {
+            passwordScreen.classList.add('hidden');
+            mainScreen.classList.remove('hidden');
+        }
+
+        function handleLogin() {
+            if (passwordInput.value.trim().toLowerCase() === SECRET_PASSWORD.toLowerCase()) {
+                sessionStorage.setItem('isUnlocked', 'true');
+                passwordScreen.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    passwordScreen.classList.add('hidden');
+                    mainScreen.classList.remove('hidden');
+                    mainScreen.classList.add('scale-100', 'opacity-100');
+                    updateUI();
+                }, 300);
+            } else {
+                passwordError.classList.remove('hidden');
+                passwordInput.value = "";
+            }
+        }
+
+        loginBtn.addEventListener('click', handleLogin);
+        passwordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleLogin(); });
+
+        const textElement = document.getElementById('compliment-text');
+        const timerElement = document.getElementById('countdown-timer');
+        const actionBtn = document.getElementById('action-btn');
+        const photoContainer = document.getElementById('photo-container');
+
+        function updateUI() {
+            const lastUnlockedStr = localStorage.getItem('lastUnlockedTime');
+            const currentIndexStr = localStorage.getItem('currentComplimentIndex');
+            
+            let index = currentIndexStr ? parseInt(currentIndexStr, 10) : 0;
+            let lastUnlocked = lastUnlockedStr ? parseInt(lastUnlockedStr, 10) : 0;
+            const now = Date.now();
+            const cooldown = 24 * 60 * 60 * 1000;
+
+            if (!lastUnlockedStr || (now - lastUnlocked >= cooldown)) {
+                textElement.innerText = "Click below to unlock a little piece of my heart for today.";
+                timerElement.classList.add('hidden');
+                photoContainer.classList.add('hidden', 'scale-95', 'opacity-0');
+                actionBtn.innerText = "Reveal Today's Message";
+                actionBtn.disabled = false;
+                actionBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                
+                actionBtn.onclick = (e) => {
+                    explodeHearts(e.clientX, e.clientY);
+                    
+                    localStorage.setItem('currentComplimentIndex', index);
+                    localStorage.setItem('lastUnlockedTime', Date.now());
+                    
+                    let nextIndex = (index + 1) % compliments.length;
+                    localStorage.setItem('nextComplimentIndex', nextIndex);
+                    
+                    // Show alert if last compliment
+                    if(index === compliments.length - 1){
+                      setTimeout(()=>{
+                        alert("❤️ Congratulations!\n\nYou've officially read every little reason why I adore you.\n\nUnfortunately... I keep finding new ones.\n\nSo this little website will never truly be finished.");
+                      },600);
+                    }
+                    
+                    setTimeout(() => { updateUI(); }, 200);
+                };
+            } else {
+                if(Math.random() < 0.05){
+                  textElement.innerText = RANDOM_MESSAGES[Math.floor(Math.random()*RANDOM_MESSAGES.length)];
+                }else{
+                  textElement.innerText = `"${compliments[index]}"`;
+                }
+                actionBtn.innerText = "Locked Until Tomorrow";
+                actionBtn.disabled = true;
+                actionBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                actionBtn.onclick = null;
+                timerElement.classList.remove('hidden');
+
+                photoContainer.classList.remove('hidden');
+                setTimeout(() => {
+                    photoContainer.classList.remove('scale-95', 'opacity-0');
+                    photoContainer.classList.add('scale-100', 'opacity-100');
+                }, 50);
+                
+                clearInterval(window.timerInterval);
+                window.timerInterval = setInterval(() => {
+                    const currentTime = Date.now();
+                    const timeLeft = (lastUnlocked + cooldown) - currentTime;
+
+                    if (timeLeft <= 0) {
+                        clearInterval(window.timerInterval);
+                        const nextQueued = localStorage.getItem('nextComplimentIndex') || 0;
+                        localStorage.setItem('currentComplimentIndex', nextQueued);
+                        updateUI();
+                    } else {
+                        const hours = Math.floor(timeLeft / (1000 * 60 * 60)).toString().padStart(2, '0');
+                        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+                        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000).toString().padStart(2, '0');
+                        timerElement.innerText = `Next message unlocks in: ${hours}:${minutes}:${seconds}`;
+                     }
+                }, 1000);
+         }
+    }
+
+    // =================================================================
+    // SYSTEM LOGIC: CANVAS HEART BLAST EFFECT
+    // =================================================================
+    const canvas = document.getElementById('heartCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    class HeartParticle {
+        constructor(x, y) {
+            this.x = x || window.innerWidth / 2;
+            this.y = y || window.innerHeight / 2;
+            this.size = Math.random() * 15 + 10;
+            this.speedX = (Math.random() - 0.5) * 8;
+            this.speedY = (Math.random() - 0.7) * 10 - 2;
+            this.opacity = 1;
+            this.color = `hsl(${Math.random() * 30 + 340}, 100%, ${Math.random() * 20 + 60}%)`;
+        }
+        draw() {
+            ctx.save();
+            ctx.globalAlpha = this.opacity;
+            ctx.fillStyle = this.color;
+            ctx.beginPath();
+            ctx.moveTo(this.x, this.y + this.size / 4);
+            ctx.quadraticCurveTo(this.x, this.y, this.x - this.size / 2, this.y);
+            ctx.quadraticCurveTo(this.x - this.size, this.y, this.x - this.size, this.y + this.size / 2);
+            ctx.quadraticCurveTo(this.x - this.size, this.y + (this.size * 3) / 4, this.x - this.size / 2, this.y + this.size);
+            ctx.lineTo(this.x, this.y + this.size * 1.25);
+            ctx.lineTo(this.x + this.size / 2, this.y + this.size);
+            ctx.quadraticCurveTo(this.x + this.size, this.y + (this.size * 3) / 4, this.x + this.size, this.y + this.size / 2);
+            ctx.quadraticCurveTo(this.x + this.size, this.y, this.x + this.size / 2, this.y);
+            ctx.quadraticCurveTo(this.x, this.y, this.x, this.y + this.size / 4);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+        }
+        update() {
+            this.x += this.speedX;
+            this.y += this.speedY;
+            this.speedY += 0.1;
+            this.opacity -= 0.015;
+        }
+    }
+
+    function explodeHearts(clientX, clientY) {
+        for (let i = 0; i < 40; i++) {
+            particles.push(new HeartParticle(clientX, clientY));
+        }
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles = particles.filter(p => p.opacity > 0);
+        particles.forEach(p => {
+            p.update();
+            p.draw();
+        });
+        requestAnimationFrame(animate);
+    }
+    
+    // Start engine and animation loops
+    animate();
+    updateUI();
+
+// --- Easter Eggs ---
+const toast = document.getElementById('secret-toast');
+function showToast(message){
+  toast.textContent = message;
+  toast.classList.remove('opacity-0');
+  toast.classList.add('opacity-100');
+  setTimeout(()=>{
+    toast.classList.remove('opacity-100');
+    toast.classList.add('opacity-0');
+  },3000);
+}
+
+if(!localStorage.getItem('firstVisitAchievement')){
+  setTimeout(()=>{
+    showToast('❤️ Achievement Unlocked: Official Keeper of Phoenix\'s Heart.');
+    localStorage.setItem('firstVisitAchievement','true');
+  },1200);
+}
+
+const diyaHeader=document.getElementById('diya-header');
+if(diyaHeader){
+  diyaHeader.addEventListener('click',()=>{
+    showToast('🪔 You found the light... and somehow, you also found my heart.');
+  });
+}
+
+const alwaysSecret=document.getElementById('always-secret');
+if(alwaysSecret){
+  alwaysSecret.addEventListener('click',()=>{
+    alert('Forever wasn\'t enough... so I made this little place for you. ❤️');
+  });
+}
+const flip=document.getElementById('photo-flip');
+const inner=document.getElementById('photo-inner');
+let flipped=false;
+if(flip){
+  flip.addEventListener('click',()=>{
+    flipped=!flipped;
+    inner.style.transform=flipped?'rotateY(180deg)':'rotateY(0deg)';
+  });
+}
+</script>
+<!--
+
+Hello, curious one.
+
+If you're reading this...
+
+Yes.
+
+I wrote every line because someone named Diya
+became my favorite chapter.
+
+If you're Diya...
+
+Congratulations.
+
+You found the last hidden message.
+
+Love,
+Phoenix ❤️
+
+-->
+</body>
+</html>
+
