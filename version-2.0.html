@@ -39,7 +39,7 @@
     </div>
 
     <!-- SCREEN 2: MAIN COMPLIMENT DASHBOARD -->
-    <div id="main-screen" class="max-w-2xl w-full bg-white/80 backdrop-blur-md p-8 rounded-3xl shadow-xl border border-rose-100 text-center transition-all duration-500 z-10 hidden">
+    <div id="main-screen" class="max-w-1xl w-full bg-white/80 backdrop-blur-md p-8 rounded-3xl shadow-xl border border-rose-100 text-center transition-all duration-500 z-10 hidden">
         
         <!-- Header Visual -->
         <div id="diya-header" class="text-5xl mb-4 floating cursor-pointer select-none">❤️🪔</div>
@@ -151,7 +151,6 @@
   "You're the only person I'd willingly get lost with, over and over again.",
   "Every time I see you, I find a new reason to fall in love all over again.",
   "Every Love story needs a little madness. Luck for us, we have a lot of it.",
-  "If you somehow reached the end... turn around. 📖",
   "Just in case you forgot today: you're loved more than words, prettier than sunsets, hotter than coffee, cuter than puppies, and forever my favorite person."
 ];
 
@@ -169,7 +168,7 @@
         function handleLogin() {
             if (passwordInput.value.trim().toLowerCase() === SECRET_PASSWORD.toLowerCase()) {
                 sessionStorage.setItem('isUnlocked', 'true');
-                showToast("❤️ Welcome home, Diya. I've been waiting for you.");
+                showToast('❤️ Welcome home, Diya.');
                 passwordScreen.classList.add('scale-95', 'opacity-0');
                 setTimeout(() => {
                     passwordScreen.classList.add('hidden');
@@ -227,29 +226,9 @@
                     }, 50);
                     // Show alert if last compliment
                     if(nextIndex === compliments.length - 1){
-                        // The End? block logic
-                        setTimeout(() => {
-                            textElement.innerHTML = `
-<div class="space-y-4 text-center">
-  <div class="text-4xl">📖</div>
-  <h2 class="text-2xl font-bold text-rose-600">The End?</h2>
-  <p class="italic">Not quite.</p>
-  <p>Every good book leaves you wanting one more chapter.</p>
-  <p>Lucky for us...</p>
-  <p class="font-semibold text-rose-600">We're still writing ours. ❤️</p>
-</div>`;
-                            showToast('❤️ Thank you for reading every page.');
-                            actionBtn.innerText = '📖 Read Our Story Again ↺';
-                            actionBtn.disabled = false;
-                            actionBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                            actionBtn.onclick = () => {
-                                localStorage.setItem('currentComplimentIndex', '0');
-                                textElement.innerText = 'Click below to reveal another little piece of my heart ❤️';
-                                photoContainer.classList.add('hidden', 'scale-95', 'opacity-0');
-                                actionBtn.innerText = 'Reveal Next Message';
-                                updateUI();
-                            };
-                        }, 1200);
+                        setTimeout(()=>{
+                            showToast('❤️ You reached the final page... Unfortunately, I keep finding new reasons to love you, so this little website will never truly be finished.');
+                        },600);
                     }
                 }, 200);
             };
