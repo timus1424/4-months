@@ -89,7 +89,7 @@
 
     <!-- App Logic -->
     <script>
-        const SECRET_PASSWORD = "diya+sumit";
+        const SECRET_PASSWORD = "toskazeh";
 
         const RANDOM_MESSAGES = [
   "SYSTEM ERROR: Too many reasons detected. Unable to choose just one. ❤️",
@@ -152,7 +152,40 @@
   "Every time I see you, I find a new reason to fall in love all over again.",
   "Every Love story needs a little madness. Luck for us, we have a lot of it.",
   "If you somehow reached the end... turn around. 📖",
-  "Just in case you forgot today: you're loved more than words, prettier than sunsets, hotter than coffee, cuter than puppies, and forever my favorite person."
+  "Volcanic Cutie, you're somehow capable of threatening me, making me laugh, and making me fall in love all within the same five minutes.",
+  "Favorite Hooman, out of the eight billion Homo sapiens on this planet, I'm ridiculously glad I found my favorite one.",
+  "Darling, every day with you feels less like luck and more like home.",
+  "Sexy Lady, respectfully... you make it very difficult to remember what I was thinking about five seconds ago.",
+  "Princess, I fully support your royal lifestyle. I shall happily carry the shopping bags while you choose bangles and gajras on random Sundays.",
+  "Sugar, your hugs should honestly be classified as an effective treatment for bad days.",
+  "Sunshine, I used to think mornings were overrated. Then you started being part of them.",
+  "Cara Mia, one day we'll be arguing over which Italian town to visit while secretly admiring every Ducati Panigale we pass.",
+  "I still owe you every toy from every claw machine we ever walk past. Consider this a legally binding promise from your Phoenix.",
+  "I cannot wait for the random Sundays. Bangles. Gajra. Coffee. Ice cream. And absolutely no plans other than existing together.",
+  "One day I'll know your bangle size by heart. Until then, 2'4 has already become one of my favorite numbers.",
+  "You once told me, 'I'm proud of my Sumitooo.' I don't think you realize how many difficult days those words quietly carried me through.",
+  "You told me, 'Sumit, I'm not leaving.' I don't think I'll ever stop being grateful for that sentence.",
+  "You have a streak of almost 450 days of loving me... including the days when I struggled to love myself. I'll never forget that.",
+  "You said you love Happy Sumit, Ranting Sumit, Talkative Sumit, and Touchy Sumit. Thank you for making every version of me feel welcome.",
+  "I'll keep waiting outside every locked door you have. Not to force it open. Just so you never have to walk through it alone.",
+  "I still think your demons avoid me because they know they're hopelessly outnumbered.",
+  "Diya ke nasheee? Guilty. Lifetime sentence accepted.",
+  "Every 'Ily^69899865899766666778888778' somehow still feels too small for how much love I think is packed inside it.",
+  "My love for you doesn't fit neatly into words either. I think that's why it keeps escaping into my daily handwritten notes & little websites like this one.",
+  "I love your coffee brown eyes almost as much as you love black coffee... almost.",
+  "You somehow managed to make coffee brown become my favorite color without even trying.",
+  "You are all the colors at full brightness Diya.",
+  "I don't need a racetrack to know you've completely lapped everyone else in my heart.",
+  "I hope one day our biggest argument is whether we're taking my Bike or Yourcar to get ice cream.",
+  "I've never met someone who could make a three-second shower call become one of my funniest memories of ldr.",
+  "I secretly hope future us laughs at present us for thinking four months felt like a long time.",
+  "If we ever get lost on a trip, I'm following the sound of your laugh. It has an incredible success rate.",
+  "I'd happily lose every argument if it meant seeing that tiny victorious smile afterwards.",
+  "I don't think you realize this My Bengali Kanchi... but you've become my favorite place where I don't have to be anything other than myself.",
+  "Volcanic Cutie, your fire never scared me. It just made me want to sit beside it forever.",
+  "You once wrote, 'My love for you doesn't fit neatly into words, so it will be spilling into everything I do.' I think this website is my version of that sentence.",
+  "Every time I build something for you, I realize it was never really about the website, the code, or the words. It was always just another way of saying 'I love you.'",
+  "Just in case you forgot today: you're loved more than words, prettier than sunsets, hotter than coffee, cuter than baby elephants, and forever my favorite person."
 ];
 
         const passwordScreen = document.getElementById('password-screen');
@@ -210,7 +243,12 @@
 
             actionBtn.onclick = (e) => {
                 // Go to next compliment
-                let nextIndex = (index + 1) % compliments.length;
+                const currentIndex = parseInt(
+    localStorage.getItem('currentComplimentIndex') || '0',
+    10
+);
+
+const nextIndex = (currentIndex + 1) % compliments.length;
                 localStorage.setItem('currentComplimentIndex', nextIndex);
                 explodeHearts(e.clientX, e.clientY);
                 // Reveal compliment and photo immediately
